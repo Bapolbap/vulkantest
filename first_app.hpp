@@ -4,6 +4,7 @@
 #include "vt_pipeline.hpp"
 #include "vt_device.hpp"
 #include "vt_swap_chain.hpp"
+#include "vt_model.hpp"
 
 #include <memory>
 #include <vector>
@@ -22,6 +23,7 @@ namespace vt {
 
             void run();
         private:
+            void loadModels();
             void createPipelineLayout();
             void createPipeline();
             void createCommandBuffers();
@@ -33,6 +35,7 @@ namespace vt {
             std::unique_ptr<VtPipeline> vtPipeline;
             VkPipelineLayout pipelineLayout;
             std::vector<VkCommandBuffer> commandBuffers;
+            std::unique_ptr<VtModel> vtModel;
 
     };
 }
