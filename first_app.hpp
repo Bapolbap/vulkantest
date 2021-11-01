@@ -27,11 +27,14 @@ namespace vt {
             void createPipelineLayout();
             void createPipeline();
             void createCommandBuffers();
+            void freeCommandBuffers();
             void drawFrame();
+            void recreateSwapChain();
+            void recordCommandBuffer(int imageIndex);
 
             VtWindow vtWindow{WIDTH, HEIGHT, "vulkan"};
             VtDevice vtDevice{vtWindow};
-            VtSwapChain vtSwapChain{vtDevice, vtWindow.getExtent()};
+            std::unique_ptr<VtSwapChain> vtSwapChain;
             std::unique_ptr<VtPipeline> vtPipeline;
             VkPipelineLayout pipelineLayout;
             std::vector<VkCommandBuffer> commandBuffers;
