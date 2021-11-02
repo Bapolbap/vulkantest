@@ -4,7 +4,7 @@
 #include "vt_pipeline.hpp"
 #include "vt_device.hpp"
 #include "vt_swap_chain.hpp"
-#include "vt_model.hpp"
+#include "vt_game_object.hpp"
 
 #include <memory>
 #include <vector>
@@ -23,7 +23,7 @@ namespace vt {
 
             void run();
         private:
-            void loadModels();
+            void loadGameObjects();
             void createPipelineLayout();
             void createPipeline();
             void createCommandBuffers();
@@ -31,6 +31,7 @@ namespace vt {
             void drawFrame();
             void recreateSwapChain();
             void recordCommandBuffer(int imageIndex);
+            void renderGameObjects(VkCommandBuffer commandBuffer);
 
             VtWindow vtWindow{WIDTH, HEIGHT, "vulkan"};
             VtDevice vtDevice{vtWindow};
@@ -38,7 +39,7 @@ namespace vt {
             std::unique_ptr<VtPipeline> vtPipeline;
             VkPipelineLayout pipelineLayout;
             std::vector<VkCommandBuffer> commandBuffers;
-            std::unique_ptr<VtModel> vtModel;
+            std::vector<VtGameObject> gameObject;
 
     };
 }

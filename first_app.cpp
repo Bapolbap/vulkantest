@@ -3,6 +3,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include <stdexcept>
 #include <array>
@@ -11,12 +12,13 @@
 namespace vt {
 
     struct SimplePushConstantData {
+        glm::mat2 transform{1.f};
         glm::vec2 offset;
         alignas(16) glm::vec3 color;
     };
 
     FirstApp::FirstApp() {
-        loadModels();
+        loadGameObjects();
         createPipelineLayout();
         recreateSwapChain();
         createCommandBuffers();
@@ -35,14 +37,23 @@ namespace vt {
         vkDeviceWaitIdle(vtDevice.device());
     }
 
-    void FirstApp::loadModels() {
+    void FirstApp::loadGameObjects() {
         std::vector<VtModel::Vertex> vertices {
             {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
             {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
         };
 
-        vtModel = std::make_unique<VtModel>(vtDevice, vertices);
+        auto vtModel = std::make_shared<VtModel>(vtDevice, vertices);
+
+        auto triangle = VtGameObject::createGameObject();
+        triangle.model = vtModel;
+        triangle.color = {.1f, .8f, .1f};
+        triangle.transform2d.translation.x = 0.2f;
+        triangle.transform2d.scale = {2.f, .5f};
+        triangle.transform2d.rotation = .25f * glm::two_pi<float>();
+
+        gameObject.push_back(std::move(triangle));
     }
 
     void FirstApp::createPipelineLayout() {
@@ -126,8 +137,6 @@ namespace vt {
     }
     
     void FirstApp::recordCommandBuffer(int imageIndex) {
-        static int frame = 0;
-        frame = (frame + 1) % 1000;
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -163,29 +172,42 @@ namespace vt {
         vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
         vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
 
-        vtPipeline->bind(commandBuffers[imageIndex]);
-        vtModel->bind(commandBuffers[imageIndex]);
+        renderGameObjects(commandBuffers[imageIndex]);
+        
+        vkCmdEndRenderPass(commandBuffers[imageIndex]);
 
-        for (int j = 0; j < 4; j++) {
+        if(vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to record command buffer");
+        }
+    }
+
+    void FirstApp::renderGameObjects(VkCommandBuffer commandBuffer) {
+
+        int i = 1;
+        for(auto& obj : gameObject) {
+            i++;
+            obj.transform2d.rotation = glm::mod<float>(obj.transform2d.rotation + 0.001f * i, 2.f * glm::pi<float>());
+        }
+
+        vtPipeline->bind(commandBuffer);
+
+        for(auto& obj : gameObject) {
             SimplePushConstantData push{};
-            push.offset = {-0.5f + frame * 0.002f, -0.4f + j * 0.25f};
-            push.color = {0.0f, 0.0f, 0.2f + 0.2f * j};
+            push.offset = obj.transform2d.translation;
+            push.color = obj.color;
+            push.transform = obj.transform2d.mat2();
 
             vkCmdPushConstants(
-                commandBuffers[imageIndex],
+                commandBuffer,
                 pipelineLayout,
                 VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                 0,
                 sizeof(SimplePushConstantData),
                 &push
             );
-            vtModel->draw(commandBuffers[imageIndex]);
-        }
-        
-        vkCmdEndRenderPass(commandBuffers[imageIndex]);
 
-        if(vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to record command buffer");
+            obj.model->bind(commandBuffer);
+            obj.model->draw(commandBuffer);
         }
     }
 
