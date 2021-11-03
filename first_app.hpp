@@ -1,7 +1,6 @@
 #pragma once
 
 #include "vt_window.hpp"
-#include "vt_pipeline.hpp"
 #include "vt_device.hpp"
 #include "vt_game_object.hpp"
 #include "vt_renderer.hpp"
@@ -24,16 +23,11 @@ namespace vt {
             void run();
         private:
             void loadGameObjects();
-            void createPipelineLayout();
-            void createPipeline();
-            void renderGameObjects(VkCommandBuffer commandBuffer);
 
             VtWindow vtWindow{WIDTH, HEIGHT, "vulkan"};
             VtDevice vtDevice{vtWindow};
             VtRenderer vtRenderer{vtWindow, vtDevice};
-            std::unique_ptr<VtPipeline> vtPipeline;
-            VkPipelineLayout pipelineLayout;
-            std::vector<VtGameObject> gameObject;
+            std::vector<VtGameObject> gameObjects;
 
     };
 }

@@ -24,7 +24,12 @@ namespace vt {
 
             VkCommandBuffer getCurrentCommandBuffer() const {
                 assert(isFrameStarted && "cannot get command buffer when frame not in progress");
-                return commandBuffers[currentImageIndex];
+                return commandBuffers[currentFrameIndex];
+            }
+
+            int getCurrentFrameIndex() const {
+                assert(isFrameStarted && "cannot get frame index when frame not in progress");
+                return currentFrameIndex; 
             }
 
             VkCommandBuffer beginFrame();
@@ -43,6 +48,7 @@ namespace vt {
             std::vector<VkCommandBuffer> commandBuffers;
 
             uint32_t currentImageIndex;
+            int currentFrameIndex;
             bool isFrameStarted = false;
     };
 }

@@ -26,18 +26,19 @@ namespace vt {
         if(vtSwapChain == nullptr) {
             vtSwapChain = std::make_unique<VtSwapChain>(vtDevice, extent);
         } else {
-            vtSwapChain = std::make_unique<VtSwapChain>(vtDevice, extent, std::move(vtSwapChain));
+            std::shared_ptr<VtSwapChain> oldSwapChain = std::move(vtSwapChain);
+            vtSwapChain = std::make_unique<VtSwapChain>(vtDevice, extent, oldSwapChain);
 
-            if(vtSwapChain->imageCount() != commandBuffers.size()) {
-                freeCommandBuffers();
-                createCommandBuffers();
+            if(!oldSwapChain->compareSwapFormat(*vtSwapChain.get())) {
+                throw std::runtime_error("swapchain image (or depth) format has changed");
             }
         }
         //fix this later
     }
 
     void VtRenderer::createCommandBuffers() {
-        commandBuffers.resize(vtSwapChain->imageCount());
+        commandBuffers.resize(VtSwapChain::MAX_FRAMES_IN_FLIGHT);
+
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -99,13 +100,12 @@ namespace vt {
         if(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || vtWindow.wasWindowResized()) {
             vtWindow.resetWindowResizeFlag();
             recreateSwapChain();
-        }
-
-        if(result != VK_SUCCESS) {
+        } else if(result != VK_SUCCESS) {
             throw std::runtime_error("failed to present swapchain image");
         }
 
         isFrameStarted = false;
+        currentFrameIndex = (currentFrameIndex + 1) % VtSwapChain::MAX_FRAMES_IN_FLIGHT;
     }
 
     void VtRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
