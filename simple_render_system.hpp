@@ -1,5 +1,6 @@
 #pragma once
 
+#include "vt_camera.hpp"
 #include "vt_pipeline.hpp"
 #include "vt_device.hpp"
 #include "vt_game_object.hpp"
@@ -17,7 +18,11 @@ namespace vt {
             SimpleRenderSystem(const SimpleRenderSystem &) = delete;
             SimpleRenderSystem &operator=(const SimpleRenderSystem &) = delete;
 
-            void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VtGameObject> &gameObjects);
+            void renderGameObjects(
+                VkCommandBuffer commandBuffer,
+                std::vector<VtGameObject> &gameObjects,
+                VtCamera &camera
+            );
 
         private:
             void createPipelineLayout();

@@ -19,7 +19,7 @@ namespace vt {
             VtRenderer &operator=(const VtRenderer &) = delete;
 
             VkRenderPass getSwapChainRenderPass() const { return vtSwapChain->getRenderPass(); }
-
+            float getAspectRatio() const { return vtSwapChain->extentAspectRatio(); }
             bool isFrameInProgress() { return isFrameStarted; }
 
             VkCommandBuffer getCurrentCommandBuffer() const {

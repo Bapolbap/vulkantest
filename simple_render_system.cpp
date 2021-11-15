@@ -58,13 +58,13 @@ namespace vt {
             pipelineConfig);
     }
 
-    void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VtGameObject> &gameObjects) {
+    void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VtGameObject> &gameObjects, VtCamera &camera) {
 
         int i = 1;
         for(auto& obj : gameObjects) {
             i++;
-            obj.transform.rotation.y = glm::mod<float>(obj.transform.rotation.y + 0.0001f * i, 2.f * glm::pi<float>());
-            obj.transform.rotation.x = glm::mod<float>(obj.transform.rotation.x + 0.00005f * i, 2.f * glm::pi<float>());
+            obj.transform.rotation.y = glm::mod<float>(obj.transform.rotation.y + 0.00001f * i, 2.f * glm::pi<float>());
+            obj.transform.rotation.x = glm::mod<float>(obj.transform.rotation.x + 0.00002f * i, 2.f * glm::pi<float>());
 
         }
 
@@ -73,7 +73,7 @@ namespace vt {
         for(auto& obj : gameObjects) {
             SimplePushConstantData push{};
             push.color = obj.color;
-            push.transform = obj.transform.mat4();
+            push.transform = camera.getProjectionMatrix() * obj.transform.mat4();
 
             vkCmdPushConstants(
                 commandBuffer,

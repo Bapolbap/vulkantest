@@ -1,5 +1,6 @@
 #include "first_app.hpp"
 
+#include "vt_camera.hpp"
 #include "simple_render_system.hpp"
 
 #define GLM_FORCE_RADIANS
@@ -22,12 +23,17 @@ namespace vt {
     void FirstApp::run() {
 
         SimpleRenderSystem simpleRenderSystem{vtDevice, vtRenderer.getSwapChainRenderPass()};
+        VtCamera camera{};
         while(!vtWindow.shouldClose()) {
             glfwPollEvents();
 
+            float aspect = vtRenderer.getAspectRatio();
+            //camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+
             if(auto commandBuffer = vtRenderer.beginFrame()) {
                 vtRenderer.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects);
+                simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
                 vtRenderer.endSwapChainRenderPass(commandBuffer);
                 vtRenderer.endFrame();
             }
@@ -101,7 +107,7 @@ namespace vt {
 
         auto cube = VtGameObject::createGameObject();
         cube.model = vtModel;
-        cube.transform.translation = {0.f, 0.f, .5f};
+        cube.transform.translation = {0.f, 0.f, 2.5f};
         cube.transform.scale = {.5f, .5f, .5f};
         gameObjects.push_back(std::move(cube));
     }
