@@ -24,6 +24,7 @@ namespace vt {
 
         SimpleRenderSystem simpleRenderSystem{vtDevice, vtRenderer.getSwapChainRenderPass()};
         VtCamera camera{};
+        camera.setViewDirection(glm::vec3{0.f}, glm::vec3{0.5f, 0.f, 1.f});
         while(!vtWindow.shouldClose()) {
             glfwPollEvents();
 
