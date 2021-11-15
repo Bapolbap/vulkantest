@@ -60,14 +60,6 @@ namespace vt {
 
     void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VtGameObject> &gameObjects, VtCamera &camera) {
 
-        int i = 1;
-        for(auto& obj : gameObjects) {
-            i++;
-            obj.transform.rotation.y = glm::mod<float>(obj.transform.rotation.y + 0.00001f * i, 2.f * glm::pi<float>());
-            obj.transform.rotation.x = glm::mod<float>(obj.transform.rotation.x + 0.00002f * i, 2.f * glm::pi<float>());
-
-        }
-
         vtPipeline->bind(commandBuffer);
 
         auto projectionView = camera.getProjectionMatrix() * camera.getViewMatrix();

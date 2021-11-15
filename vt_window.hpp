@@ -20,6 +20,7 @@ namespace vt {
 
             bool wasWindowResized() { return frameBufferResized; }
             void resetWindowResizeFlag() { frameBufferResized = false; }
+            GLFWwindow *getGLFWWindow() const { return window; }
 
             void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
 
