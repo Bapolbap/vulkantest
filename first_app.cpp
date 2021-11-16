@@ -1,8 +1,8 @@
 #include "first_app.hpp"
 
+#include "keyboard_movement_controller.hpp"
 #include "vt_camera.hpp"
 #include "simple_render_system.hpp"
-#include "keyboard_movement_controller.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -39,7 +39,7 @@ namespace vt {
             currentTime = newTime;
 
             cameraController.movePlaneXZ(vtWindow.getGLFWWindow(), frameTime, viewerObject);
-            camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.translation);
+            camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = vtRenderer.getAspectRatio();
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
