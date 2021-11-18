@@ -58,12 +58,12 @@ namespace vt {
     
 
     void FirstApp::loadGameObjects() {
-        std::shared_ptr<VtModel> vtModel = VtModel::createModelFromFile(vtDevice, "models/colored_cube.obj");
+        std::shared_ptr<VtModel> vtModel = VtModel::createModelFromFile(vtDevice, "models/flat_vase.obj");
 
         auto gameObj = VtGameObject::createGameObject();
         gameObj.model = vtModel;
-        gameObj.transform.translation = {0.f, 0.f, 2.5f};
-        gameObj.transform.scale = glm::vec3{1.f};
+        gameObj.transform.translation = {0.f, 0.5f, 2.5f};
+        gameObj.transform.scale = glm::vec3{3.f};
         gameObjects.push_back(std::move(gameObj));
     }
 }
