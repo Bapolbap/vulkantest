@@ -17,13 +17,7 @@ const vec3 DIRECTION_TO_LIGHT = normalize(vec3(1.0, -3.0, -1.0));
 const float AMBIENT = 0.02;
 
 void main() {
-    //gl_Position = vec4(push.transform * position + push.offset, 0.0, 1.0);
     gl_Position = push.transform * vec4(position, 1.0);
-
-    //vec3 normalWorldSpace = normalize(mat3(push.modelMatrix) * normal);
-
-    //mat3 normalMatrix = transpose(inverse(mat3(push.modelMatrix)));
-    //vec3 normalWorldSpace = normalize(normalMatrix * normal);
 
     vec3 normalWorldSpace = normalize(mat3(push.normalMatrix) * normal);
 

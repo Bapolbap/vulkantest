@@ -58,11 +58,11 @@ namespace vt {
             pipelineConfig);
     }
 
-    void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VtGameObject> &gameObjects, VtCamera &camera) {
+    void SimpleRenderSystem::renderGameObjects(FrameInfo &frameInfo, std::vector<VtGameObject> &gameObjects) {
 
-        vtPipeline->bind(commandBuffer);
+        vtPipeline->bind(frameInfo.commandBuffer);
 
-        auto projectionView = camera.getProjectionMatrix() * camera.getViewMatrix();
+        auto projectionView = frameInfo.camera.getProjectionMatrix() * frameInfo.camera.getViewMatrix();
 
         for(auto& obj : gameObjects) {
             SimplePushConstantData push{};
@@ -71,7 +71,7 @@ namespace vt {
             push.normalMatrix = obj.transform.normalMatrix();
 
             vkCmdPushConstants(
-                commandBuffer,
+                frameInfo.commandBuffer,
                 pipelineLayout,
                 VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                 0,
@@ -79,8 +79,8 @@ namespace vt {
                 &push
             );
 
-            obj.model->bind(commandBuffer);
-            obj.model->draw(commandBuffer);
+            obj.model->bind(frameInfo.commandBuffer);
+            obj.model->draw(frameInfo.commandBuffer);
         }
     }
 }

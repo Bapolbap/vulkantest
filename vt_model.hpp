@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vt_device.hpp"
+#include "vt_buffer.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -50,13 +51,11 @@ namespace vt {
 
             VtDevice& vtDevice;
 
-            VkBuffer vertexBuffer;
-            VkDeviceMemory vertexBufferMemory;
+            std::unique_ptr<VtBuffer> vertexBuffer;
             uint32_t vertexCount;
 
             bool hasIndexBuffer = false;
-            VkBuffer indexBuffer;
-            VkDeviceMemory indexBufferMemory;
+            std::unique_ptr<VtBuffer> indexBuffer;
             uint32_t indexCount;
 
     };

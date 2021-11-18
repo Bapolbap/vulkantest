@@ -1,6 +1,7 @@
 #include "first_app.hpp"
 
 #include "keyboard_movement_controller.hpp"
+#include "vt_buffer.hpp"
 #include "vt_camera.hpp"
 #include "simple_render_system.hpp"
 
@@ -16,6 +17,11 @@
 
 namespace vt {
 
+    struct GlobalUbo {
+        glm::mat4 projectionView{1.f};
+        glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+    };
+
     FirstApp::FirstApp() {
         loadGameObjects();
     }
@@ -23,6 +29,17 @@ namespace vt {
     FirstApp::~FirstApp() {}
 
     void FirstApp::run() {
+
+        std::vector<std::unique_ptr<VtBuffer>> uboBuffers(VtSwapChain::MAX_FRAMES_IN_FLIGHT);
+        for(int i = 0; i < uboBuffers.size(); i++) {
+            uboBuffers[i] = std::make_unique<VtBuffer>(
+            vtDevice,
+            sizeof(GlobalUbo),
+            1,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+            uboBuffers[i]->map();
+        }
 
         SimpleRenderSystem simpleRenderSystem{vtDevice, vtRenderer.getSwapChainRenderPass()};
         VtCamera camera{};
@@ -45,8 +62,23 @@ namespace vt {
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
             if(auto commandBuffer = vtRenderer.beginFrame()) {
+                int frameIndex = vtRenderer.getCurrentFrameIndex();
+                FrameInfo frameInfo{
+                    frameIndex,
+                    frameTime,
+                    commandBuffer,
+                    camera
+                };
+
+                //update
+                GlobalUbo ubo{};
+                ubo.projectionView = camera.getProjectionMatrix() * camera.getViewMatrix();
+                uboBuffers[frameIndex]->writeToBuffer(&ubo);
+                uboBuffers[frameIndex]->flush();
+
+                //render
                 vtRenderer.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
+                simpleRenderSystem.renderGameObjects(frameInfo, gameObjects);
                 vtRenderer.endSwapChainRenderPass(commandBuffer);
                 vtRenderer.endFrame();
             }
