@@ -4,6 +4,7 @@
 #include "vt_device.hpp"
 #include "vt_game_object.hpp"
 #include "vt_renderer.hpp"
+#include "vt_descriptors.hpp"
 
 #include <memory>
 #include <vector>
@@ -27,6 +28,8 @@ namespace vt {
             VtWindow vtWindow{WIDTH, HEIGHT, "vulkan"};
             VtDevice vtDevice{vtWindow};
             VtRenderer vtRenderer{vtWindow, vtDevice};
+
+            std::unique_ptr<VtDescriptorPool> globalPool{};
             std::vector<VtGameObject> gameObjects;
 
     };
